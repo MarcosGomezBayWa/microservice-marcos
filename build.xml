@@ -43,13 +43,11 @@
     <target name="setup-queue" description="Setup Queue Credentials">
         <if>
             <and>
-                <isset property="queue.queueName.queueUrl"/>
             </and>
             <then>
                 <loadfile property="queue.config" file="${project.basedir}/config/autoload/queue.local.php.dist">
                     <filterchain>
                         <replacetokens>
-                            <token key="queue.queueName.queueUrl" value="${queue.queueName.queueUrl}"/>
                         </replacetokens>
                     </filterchain>
                 </loadfile>

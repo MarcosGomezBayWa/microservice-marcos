@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+if (apcu_clear_cache()) {
+    die(0);
+}
+
+die(1);

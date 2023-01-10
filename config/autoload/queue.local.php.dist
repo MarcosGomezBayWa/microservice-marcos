@@ -1,0 +1,12 @@
+<?php
+
+return
+    [
+        'queue' =>
+            [
+//                '<queue name>' =>
+//                    [
+//                        'queueUrl' => '@queue.<queue name>.queueUrl@'
+//                    ],
+            ],
+    ];
