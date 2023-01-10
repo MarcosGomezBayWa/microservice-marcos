@@ -52,8 +52,6 @@ return [
                             'drivers' =>
                                 [
                                     // register `doctrine_driver` for any entity under namespace `My\Namespace`
-                                    'tms\V1\Rest' => 'doctrine_driver',
-                                    'tms\V1\Rpc'  => 'doctrine_driver',
                                     'Application' => 'doctrine_driver',
                                 ],
                         ],
