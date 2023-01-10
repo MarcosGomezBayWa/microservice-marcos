@@ -1,0 +1,15 @@
+default:
+  gherkin:
+    cache: ~
+  formatters:
+    pretty: true
+    junit:
+      output_path: "results/Behat"
+  suites:
+    api_features:
+      contexts:
+        - Test\Acceptance\FeatureContext
+        - BayWaReLusy\BehatContext\ConsoleContext
+        - BayWaReLusy\BehatContext\HalContext
+        - BayWaReLusy\BehatContext\AuthContext
+        - BayWaReLusy\BehatContext\SqsContext

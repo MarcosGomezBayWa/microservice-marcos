@@ -1,5 +1,7 @@
 <?php
 
+namespace Test\Acceptance;
+
 use BayWaReLusy\BehatContext\AuthContext\AuthContextAwareInterface;
 use BayWaReLusy\BehatContext\AuthContext\AuthContextAwareTrait;
 use BayWaReLusy\BehatContext\ConsoleContext\ConsoleContextAwareInterface;
@@ -9,6 +11,7 @@ use BayWaReLusy\BehatContext\HalContext\HalContextAwareTrait;
 use BayWaReLusy\BehatContext\SqsContext\SqsContextAwareInterface;
 use BayWaReLusy\BehatContext\SqsContext\SqsContextAwareTrait;
 use Behat\Behat\Context\Context;
+use Doctrine\ORM\EntityManager;
 use Laminas\Mvc\Application as ZfApplication;
 use Laminas\ServiceManager\ServiceManager;
 use Laminas\Stdlib\ArrayUtils;
@@ -69,6 +72,19 @@ class FeatureContext implements
     }
 
     /**
+     * @return EntityManager
+     * @throws Exception
+     */
+    public function getEntityManager(): EntityManager
+    {
+        try {
+            return $this->getServiceManager()->get(EntityManager::class);
+        } catch (\Throwable $e) {
+            throw new Exception("Couldn't retrieve Entity Manager.");
+        }
+    }
+
+    /**
      * @param BeforeScenarioScope $scope
      * @throws Exception
      * @BeforeScenario
@@ -117,5 +133,19 @@ class FeatureContext implements
 //                $this->getServiceManager()->get('config')['queue']['<queue name>']['queueUrl']
 //            ))
             ;
+    }
+
+    /**
+     * @BeforeScenario
+     * @throws Exception
+     */
+    public function purgeDatabaseAndCache(): void
+    {
+        // Purge Database
+        $purger = new ORMPurger($this->getEntityManager());
+        $purger->purge();
+
+        // Clear all queues
+        $this->sqsContext->clearAllQueues();
     }
 }

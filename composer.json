@@ -70,7 +70,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "ApplicationTest\\": "module/Application/test/"
+            "Test\\": "tests"
         },
         "files": [
             "src/ApiTools/constants.php"
