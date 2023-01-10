@@ -23,4 +23,13 @@ return [
         'module_map_cache_enabled' => true,
         'cache_dir'                => 'data/cache/',
     ],
+    'service_manager' => [
+        'invokables' => [
+            'doctrine.naming_strategy.underscore' => 'Doctrine\ORM\Mapping\UnderscoreNamingStrategy',
+        ],
+        'aliases'    => [
+            'entity_manager' => 'Doctrine\ORM\EntityManager',
+            'em'             => 'Doctrine\ORM\EntityManager',
+        ]
+    ],
 ];

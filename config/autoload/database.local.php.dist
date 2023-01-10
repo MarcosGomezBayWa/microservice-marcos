@@ -1,0 +1,40 @@
+<?php
+
+return
+    [
+        'doctrine' =>
+            [
+                'driver' =>
+                    [
+                        'doctrine_driver' =>
+                            [
+                                'cache' => '@db.cache.adapter@',
+                            ]
+                    ],
+                'connection' =>
+                    [
+                        'orm_default' =>
+                            [
+                                'driverClass' => Doctrine\DBAL\Driver\PDO\MySQL\Driver::class,
+                                'params' =>
+                                    [
+                                        'host'     => '@db.host@',
+                                        'user'     => '@db.username@',
+                                        'port'     => 3306,
+                                        'charset'  => 'UTF8',
+                                        'password' => '@db.password@',
+                                        'dbname'   => '@db.name@',
+                                    ]
+                            ]
+                    ],
+                'configuration' =>
+                    [
+                        'orm_default' =>
+                            [
+                                'metadata_cache'   => '@db.cache.adapter@',
+                                'query_cache'      => '@db.cache.adapter@',
+                                'result_cache'     => '@db.cache.adapter@',
+                            ]
+                    ]
+            ]
+    ];

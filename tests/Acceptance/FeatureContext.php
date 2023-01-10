@@ -10,8 +10,10 @@ use BayWaReLusy\BehatContext\HalContext\HalContextAwareInterface;
 use BayWaReLusy\BehatContext\HalContext\HalContextAwareTrait;
 use BayWaReLusy\BehatContext\SqsContext\SqsContextAwareInterface;
 use BayWaReLusy\BehatContext\SqsContext\SqsContextAwareTrait;
+use BayWaReLusy\QueueTools\Adapter\AwsSqsAdapter;
 use Behat\Behat\Context\Context;
 use Doctrine\ORM\EntityManager;
+use Exception;
 use Laminas\Mvc\Application as ZfApplication;
 use Laminas\ServiceManager\ServiceManager;
 use Laminas\Stdlib\ArrayUtils;
@@ -80,7 +82,7 @@ class FeatureContext implements
         try {
             return $this->getServiceManager()->get(EntityManager::class);
         } catch (\Throwable $e) {
-            throw new Exception("Couldn't retrieve Entity Manager.");
+            throw new Exception(sprintf("Couldn't retrieve Entity Manager: %s", $e->getMessage()));
         }
     }
 
@@ -122,12 +124,18 @@ class FeatureContext implements
 //            ))
             ;
 
+        $adapter = new AwsSqsAdapter(
+            $this->getServiceManager()->get('config')['aws']['region'],
+            $this->getServiceManager()->get('config')['aws']['credentials']['key'],
+            $this->getServiceManager()->get('config')['aws']['credentials']['secret']
+        );
+
         $this->gatherSqsContext($scope);
         $this->getSqsContext()
             ->setAwsRegion($this->getServiceManager()->get('config')['aws']['region'])
             ->setAwsKey($this->getServiceManager()->get('config')['aws']['credentials']['key'])
             ->setAwsSecret($this->getServiceManager()->get('config')['aws']['credentials']['secret'])
-            ->setQueueService($this->getServiceManager()->get(QueueTools::class)->get(QueueService::class))
+            ->setQueueService(new QueueService($adapter))
 //            ->addQueue(new QueueUrl(
 //                '<queue name>',
 //                $this->getServiceManager()->get('config')['queue']['<queue name>']['queueUrl']

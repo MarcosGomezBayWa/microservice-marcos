@@ -1,0 +1,139 @@
+<project name="BayWa r.e. Microservice Skeleton" default="help" basedir=".">
+    <target name="help" description="List available targets">
+        <exec executable="vendor/bin/phing"
+              passthru="true">
+            <arg value="-l"/>
+        </exec>
+    </target>
+
+    <target name="set-permissions" description="Set folder permissions">
+        <chmod file="data/cache" mode="777" />
+        <chmod file="data/DoctrineORMModule/Proxy" mode="777" />
+    </target>
+
+    <target name="setup-db" description="Setup Database Credentials">
+        <if>
+            <and>
+                <isset property="db.host"/>
+                <isset property="db.username"/>
+                <isset property="db.password"/>
+                <isset property="db.name"/>
+                <isset property="db.cache.adapter"/>
+            </and>
+            <then>
+                <loadfile property="db.config" file="${project.basedir}/config/autoload/database.local.php.dist">
+                    <filterchain>
+                        <replacetokens>
+                            <token key="db.host" value="${db.host}"/>
+                            <token key="db.username" value="${db.username}"/>
+                            <token key="db.password" value="${db.password}"/>
+                            <token key="db.name" value="${db.name}"/>
+                            <token key="db.cache.adapter" value="${db.cache.adapter}"/>
+                        </replacetokens>
+                    </filterchain>
+                </loadfile>
+                <echo message="${db.config}" file="${project.basedir}/config/autoload/database.local.php"/>
+            </then>
+            <else>
+                <fail message="No DB config provided."/>
+            </else>
+        </if>
+    </target>
+
+    <target name="setup-queue" description="Setup Queue Credentials">
+        <if>
+            <and>
+                <isset property="queue.queueName.queueUrl"/>
+            </and>
+            <then>
+                <loadfile property="queue.config" file="${project.basedir}/config/autoload/queue.local.php.dist">
+                    <filterchain>
+                        <replacetokens>
+                            <token key="queue.queueName.queueUrl" value="${queue.queueName.queueUrl}"/>
+                        </replacetokens>
+                    </filterchain>
+                </loadfile>
+                <echo message="${queue.config}" file="${project.basedir}/config/autoload/queue.local.php"/>
+            </then>
+            <else>
+                <fail message="No Queue config provided."/>
+            </else>
+        </if>
+    </target>
+
+    <target name="db-migration" description="Apply all database migrations">
+        <exec checkreturn="true" command="vendor/bin/doctrine-module migrations:migrate --no-interaction" passthru="true"/>
+    </target>
+
+    <target name="db-clear-cache" description="Clear database caches">
+        <exec checkreturn="true" command="./clear_cache" passthru="true"/>
+    </target>
+
+    <target name="setup-auth" description="Setup Authentication Credentials">
+        <if>
+            <and>
+                <isset property="auth.jwksUrl"/>
+                <isset property="auth.tokenEndpoint"/>
+                <isset property="auth.serverAddress"/>
+                <isset property="auth.frontendClientUuid"/>
+                <isset property="auth.managementApi.usersEndpoint"/>
+                <isset property="auth.managementApi.logoutEndpoint"/>
+                <isset property="auth.managementApi.clientId"/>
+                <isset property="auth.managementApi.clientSecret"/>
+            </and>
+            <then>
+                <loadfile property="auth.config" file="${project.basedir}/config/autoload/auth.local.php.dist">
+                    <filterchain>
+                        <replacetokens>
+                            <token key="auth.jwksUrl" value="${auth.jwksUrl}"/>
+                            <token key="auth.tokenEndpoint" value="${auth.tokenEndpoint}"/>
+                            <token key="auth.serverAddress" value="${auth.serverAddress}"/>
+                            <token key="auth.frontendClientUuid" value="${auth.frontendClientUuid}"/>
+                            <token key="auth.managementApi.usersEndpoint" value="${auth.managementApi.usersEndpoint}"/>
+                            <token key="auth.managementApi.logoutEndpoint" value="${auth.managementApi.logoutEndpoint}"/>
+                            <token key="auth.managementApi.clientId" value="${auth.managementApi.clientId}"/>
+                            <token key="auth.managementApi.clientSecret" value="${auth.managementApi.clientSecret}"/>
+                        </replacetokens>
+                    </filterchain>
+                </loadfile>
+                <echo message="${auth.config}" file="${project.basedir}/config/autoload/auth.local.php"/>
+            </then>
+            <else>
+                <fail message="No Authentication config provided."/>
+            </else>
+        </if>
+    </target>
+
+    <target name="setup-aws" description="Setup AWS config file">
+        <if>
+            <and>
+                <isset property="aws.region"/>
+                <isset property="aws.key"/>
+                <isset property="aws.secret"/>
+            </and>
+            <then>
+                <loadfile property="aws.config" file="./config/autoload/aws.local.php.dist">
+                    <filterchain>
+                        <replacetokens>
+                            <token key="aws.region" value="${aws.region}"/>
+                            <token key="aws.key" value="${aws.key}"/>
+                            <token key="aws.secret" value="${aws.secret}"/>
+                        </replacetokens>
+                    </filterchain>
+                </loadfile>
+                <echo message="${aws.config}" file="./config/autoload/aws.local.php"/>
+            </then>
+            <else>
+                <fail message="No AWS config provided."/>
+            </else>
+        </if>
+    </target>
+
+    <target name="is-ready" description="Mark application as ready">
+        <echo message="ready" file="./is_ready"/>
+    </target>
+
+    <target name="setup" depends="set-permissions, setup-db, setup-aws, setup-queue, setup-auth, db-clear-cache"/>
+
+    <target name="init" depends="setup, is-ready"/>
+</project>
