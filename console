@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+use BayWaReLusy\UserManagement\MachineUserEntity;
+use Laminas\Authentication\AuthenticationService;
+use Laminas\Stdlib\ArrayUtils;
+use Symfony\Component\Console\Application;
+
+ini_set("memory_limit", "2048M");
+
+$appConfig = include __DIR__ . '/config/application.config.php';
+
+// Load development config to avoid enabling the config & module cache
+if (file_exists(__DIR__ . '/config/development.config.php')) {
+    $appConfig = ArrayUtils::merge($appConfig, include __DIR__ . '/config/development.config.php');
+}
+
+$laminasApplication = \Laminas\Mvc\Application::init($appConfig);
+$serviceManager     = $laminasApplication->getServiceManager();
+$application        = new Application();
+
+/** @var AuthenticationService $authService */
+$authService = $serviceManager->get(AuthenticationService::class);
+$authService->getStorage()->write((new MachineUserEntity())->setApplicationId(MachineUserEntity::CONSOLE_APPLICATION));
+
+// $application->add($serviceManager->get(<Console Command class>));
+
+$application->run();

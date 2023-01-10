@@ -11,6 +11,27 @@
         <chmod file="data/DoctrineORMModule/Proxy" mode="777" />
     </target>
 
+    <target name="setup-env" description="Setup Environment">
+        <if>
+            <and>
+                <isset property="hostname"/>
+            </and>
+            <then>
+                <loadfile property="env.config" file="${project.basedir}/config/autoload/env.local.php.dist">
+                    <filterchain>
+                        <replacetokens>
+                            <token key="hostname" value="${hostname}"/>
+                        </replacetokens>
+                    </filterchain>
+                </loadfile>
+                <echo message="${env.config}" file="${project.basedir}/config/autoload/env.local.php"/>
+            </then>
+            <else>
+                <fail message="No environment config provided."/>
+            </else>
+        </if>
+    </target>
+
     <target name="setup-db" description="Setup Database Credentials">
         <if>
             <and>
@@ -131,7 +152,7 @@
         <echo message="ready" file="./is_ready"/>
     </target>
 
-    <target name="setup" depends="set-permissions, setup-db, setup-aws, setup-queue, setup-auth, db-clear-cache"/>
+    <target name="setup" depends="set-permissions, setup-env, setup-db, setup-aws, setup-queue, setup-auth, db-clear-cache"/>
 
     <target name="init" depends="setup, is-ready"/>
 </project>

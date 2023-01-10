@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/vendor/autoload.php';
+use Symfony\Component\Console\Command\Command;
+
+set_time_limit(0);
+
+if (!file_exists(__DIR__ . '/is_ready')) {
+    $result = 0;
+    passthru(__DIR__ . '/is_ready.sh', $result);
+
+    if ($result > 0) {
+        die('Container initialization failed');
+    }
+}
+
+$argv[0] = str_replace('consoled', 'console', $argv[0]);
+
+$result = 0;
+$command = implode(' ', $argv);
+
+while (true) {
+    passthru($command, $result);
+
+    if ($result === Command::FAILURE) {
+        die($result);
+    }
+}
