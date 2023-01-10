@@ -3,7 +3,6 @@
 return [
     // Development time modules
     'modules' => [
-        'Laminas\DeveloperTools',
         'Laminas\ApiTools\Admin',
     ],
     // development time configuration globbing
