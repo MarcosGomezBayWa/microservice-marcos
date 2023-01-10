@@ -1,0 +1,8 @@
+parameters:
+    level: 7
+    paths:
+        - module
+    ignoreErrors:
+    excludePaths:
+        - module/Application/src/Controller/IndexController.php
+    checkMissingIterableValueType: false
