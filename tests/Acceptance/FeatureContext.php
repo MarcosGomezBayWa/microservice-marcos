@@ -97,9 +97,6 @@ class FeatureContext implements
             throw new Exception('Env var APACHE_HOSTNAME must be set.');
         }
 
-        /** @var InitializedContextEnvironment $environment */
-        $environment = $scope->getEnvironment();
-
         $this->gatherConsoleContext($scope);
 
         $this->gatherHalContext($scope);
