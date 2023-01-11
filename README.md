@@ -31,6 +31,29 @@ use Laminas\Cache\Psr\CacheItemPool\CacheItemPoolDecorator;
 use Laminas\Http\Header\GenericHeader;
 use Laminas\Http\Request;
 use Laminas\ServiceManager\ServiceManager;
+use Laminas\ModuleManager\Feature\AutoloaderProviderInterface;
+use Laminas\ModuleManager\Feature\BootstrapListenerInterface;
+use Laminas\ModuleManager\Feature\ConfigProviderInterface;
+use Laminas\ApiTools\Provider\ApiToolsProviderInterface;
+
+...
+
+class Module implements
+    ApiToolsProviderInterface,
+    ConfigProviderInterface,
+    BootstrapListenerInterface,
+    AutoloaderProviderInterface
+
+...
+
+public function getConfig()
+ {
+     $config = new Config(include __DIR__ . '/../config/module.config.php');
+     $config->merge(new Config(include __DIR__ . '/../config/services.php'));
+     $config->merge(new Config(include __DIR__ . '/../config/validators.php'));
+
+     return $config;
+ }
 
 public function onAuthentication(MvcAuthEvent $e): IdentityInterface
  {
@@ -95,4 +118,44 @@ public function onAuthentication(MvcAuthEvent $e): IdentityInterface
          return $guest;
      }
  }
+```
+
+Add the following files:
+
+`module/<your module>/config/services.php`
+```php
+<?php
+
+return
+    [
+        'service_manager' =>
+            [
+                'invokables' =>
+                    [
+                    ],
+                'factories' =>
+                    [
+                    ],
+            ],
+    ];
+
+```
+
+`module/<your module>/config/validators.php`
+```php
+<?php
+
+return
+    [
+        'validators' =>
+            [
+                'invokables' =>
+                    [
+                    ],
+                'factories' =>
+                    [
+                    ]
+            ]
+    ];
+
 ```
