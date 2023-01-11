@@ -11,6 +11,7 @@ BayWa r.e. Microservice Skeleton
 2. Run `./composer.phar install`
 3. Copy a file `local-conf.ini.dist` to `local-conf.ini` and complete the missing values
 4. Run `vendor/bin/phing init -propertyfile local-conf.ini`
+5. Search all occurences of the term *Microservice* (`README.md`, `build.xml`, `composer.json`, etc.) and replace them with the name of your project.
 
 # Authentication
 
