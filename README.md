@@ -35,6 +35,7 @@ use Laminas\ModuleManager\Feature\AutoloaderProviderInterface;
 use Laminas\ModuleManager\Feature\BootstrapListenerInterface;
 use Laminas\ModuleManager\Feature\ConfigProviderInterface;
 use Laminas\ApiTools\Provider\ApiToolsProviderInterface;
+use Laminas\Config\Config;
 
 ...
 
@@ -46,78 +47,93 @@ class Module implements
 
 ...
 
-public function getConfig()
- {
-     $config = new Config(include __DIR__ . '/../config/module.config.php');
-     $config->merge(new Config(include __DIR__ . '/../config/services.php'));
-     $config->merge(new Config(include __DIR__ . '/../config/validators.php'));
+public function onBootstrap(EventInterface $e)
+{
+    $eventManager = $e->getApplication()->getEventManager();
+    $eventManager->attach('authentication', [$this, 'onAuthentication'], 10000);
 
-     return $config;
- }
+    // Ignore Annotations from OpenApi in Doctrine AnnotationReader
+    AnnotationReader::addGlobalIgnoredName('OA\Schema');
+    AnnotationReader::addGlobalIgnoredName('OA\Property');
+    AnnotationReader::addGlobalIgnoredName('OA\Tag');
+    AnnotationReader::addGlobalIgnoredName('OA\Items');
+}
+ 
+public function getConfig()
+{
+    $config = new Config(include __DIR__ . '/../config/module.config.php');
+    $config->merge(new Config(include __DIR__ . '/../config/services.php'));
+    $config->merge(new Config(include __DIR__ . '/../config/validators.php'));
+
+    return $config;
+}
+ 
+public function getAutoloaderConfig()
+{
+    return [
+        'Laminas\ApiTools\Autoloader' => [
+            'namespaces' => [
+                __NAMESPACE__ => __DIR__ . '/src',
+            ],
+        ],
+    ];
+}
 
 public function onAuthentication(MvcAuthEvent $e): IdentityInterface
- {
-     $tokenService = new TokenService();
-     $guest        = new GuestIdentity();
+{
+    $tokenService = new TokenService();
+    $guest        = new GuestIdentity();
 
-     // Get the Authorization header
-     /** @var Request $request */
-     $request = $e->getMvcEvent()->getRequest();
-     /** @var GenericHeader|null $authHeader */
-     $authHeader = $request->getHeader('Authorization');
+    // Get the Authorization header
+    /** @var Request $request */
+    $request = $e->getMvcEvent()->getRequest();
+    /** @var GenericHeader|null $authHeader */
+    $authHeader = $request->getHeader('Authorization');
 
-     // Return guest identity if no Authorization header is sent
-     if (!$authHeader) {
-         return $guest;
-     }
+    // Return guest identity if no Authorization header is sent
+    if (!$authHeader) {
+        return $guest;
+    }
 
-     $token = $authHeader->getFieldValue();
+    $token = $authHeader->getFieldValue();
 
-     try {
-         /** @var ServiceManager $sm */
-         $sm = $e->getMvcEvent()->getApplication()->getServiceManager();
+    try {
+        /** @var ServiceManager $sm */
+        $sm = $e->getMvcEvent()->getApplication()->getServiceManager();
 
-         // Initialize the cache for the JWKs
-         $jwkCache = new CacheItemPoolDecorator($sm->get('auth-token-cache'));
+        // Initialize the cache for the JWKs
+        $jwkCache = new CacheItemPoolDecorator($sm->get('auth-token-cache'));
 
-         // Decode & validate the token
-         $tokenDecoded = $tokenService->validateToken($token, $jwkCache, $sm->get('config')['auth']['jwksUrl']);
+        // Decode & validate the token
+        $tokenDecoded = $tokenService->validateToken($token, $jwkCache, $sm->get('config')['auth']['jwksUrl']);
 
-         // Find the corresponding user. If the token contains
-         if (!is_null($tokenDecoded->getEmail()) || str_starts_with($tokenDecoded->getSub(), 'auth0|')) {
-             /** @var UserMapper $userMapper */
-             $userMapper = $sm->get(UserMapper::class);
-             $user       = $userMapper->find($tokenDecoded->getSub());
-             $user->setPermissions($tokenDecoded->getScope());
-         } else {
-             $user = new MachineUserEntity();
-             $user
-                 ->setApplicationId($tokenDecoded->getAzp())
-                 ->setPermissions($tokenDecoded->getScope());
-         }
+        // Find the corresponding user. If the token contains
+        if (!is_null($tokenDecoded->getEmail())) {
+            $user = UserEntity::createFromJWT($tokenDecoded);
+        } else {
+            $user = new MachineUserEntity();
+            $user
+                ->setApplicationId($tokenDecoded->getClientId())
+                ->setScopes($tokenDecoded->getScopes());
+        }
 
-         // Set the user's identity
-         if ($user) {
-             // @phpstan-ignore-next-line
-             $authenticatedIdentity = new AuthenticatedIdentity($user);
+        // @phpstan-ignore-next-line
+        $authenticatedIdentity = new AuthenticatedIdentity($user);
 
-             /** @var AuthenticationService $authService */
-             $authService = $sm->get(AuthenticationService::class);
-             $authService->getStorage()->write($user);
+        /** @var AuthenticationService $authService */
+        $authService = $sm->get(AuthenticationService::class);
+        $authService->getStorage()->write($user);
 
-             return $authenticatedIdentity;
-         } else {
-             return $guest;
-         }
-     } catch (InvalidTokenException $e) {
-         error_log($e->getMessage());
-         return $guest;
-     } catch (\Throwable $e) {
-         error_log($e->getMessage());
-         error_log($e->getTraceAsString());
-         return $guest;
-     }
- }
+        return $authenticatedIdentity;
+    } catch (InvalidTokenException $e) {
+        error_log($e->getMessage());
+        return $guest;
+    } catch (\Throwable $e) {
+        error_log($e->getMessage());
+        error_log($e->getTraceAsString());
+        return $guest;
+    }
+}
 ```
 
 Add the following files:
