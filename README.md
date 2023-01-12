@@ -64,9 +64,9 @@ public function onBootstrap(EventInterface $e)
  
 public function getConfig()
 {
-    $config = new Config(include __DIR__ . '/../config/module.config.php');
-    $config->merge(new Config(include __DIR__ . '/../config/services.php'));
-    $config->merge(new Config(include __DIR__ . '/../config/validators.php'));
+    $config = new Config(include __DIR__ . '/config/module.config.php');
+    $config->merge(new Config(include __DIR__ . '/config/services.php'));
+    $config->merge(new Config(include __DIR__ . '/config/validators.php'));
 
     return $config;
 }
