@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Application;
 
+use Laminas\Config\Config;
+
 class Module
 {
     /**
@@ -11,6 +13,9 @@ class Module
      */
     public function getConfig()
     {
-        return include __DIR__ . '/../config/module.config.php';
+        $config = new Config(include __DIR__ . '/../config/module.config.php');
+        $config->merge(new Config(include __DIR__ . '/../config/services.php'));
+
+        return $config;
     }
 }
