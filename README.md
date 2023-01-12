@@ -146,12 +146,8 @@ return
     [
         'service_manager' =>
             [
-                'invokables' =>
-                    [
-                    ],
-                'factories' =>
-                    [
-                    ],
+                'invokables' => [],
+                'factories'  => [],
             ],
     ];
 
@@ -165,13 +161,8 @@ return
     [
         'validators' =>
             [
-                'invokables' =>
-                    [
-                    ],
-                'factories' =>
-                    [
-                    ]
+                'invokables' => [],
+                'factories'  => []
             ]
     ];
-
 ```
