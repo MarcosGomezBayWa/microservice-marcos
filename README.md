@@ -18,7 +18,9 @@ BayWa r.e. Microservice Skeleton
 After having created your API in the ApiTools Admin interface, open the `Module.php` file of the newly created module and add the following :
 
 ```php
-use Application\User\UserMapper;
+use BayWaReLusy\UserManagement\UserEntity;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Laminas\ApiTools\Provider\ApiToolsProviderInterface;
 use BayWaReLusy\JwtAuthentication\InvalidTokenException;
 use BayWaReLusy\JwtAuthentication\TokenService;
 use BayWaReLusy\UserManagement\MachineUserEntity;
@@ -28,14 +30,14 @@ use Laminas\ApiTools\MvcAuth\Identity\IdentityInterface;
 use Laminas\ApiTools\MvcAuth\MvcAuthEvent;
 use Laminas\Authentication\AuthenticationService;
 use Laminas\Cache\Psr\CacheItemPool\CacheItemPoolDecorator;
+use Laminas\Config\Config;
+use Laminas\EventManager\EventInterface;
 use Laminas\Http\Header\GenericHeader;
 use Laminas\Http\Request;
-use Laminas\ServiceManager\ServiceManager;
 use Laminas\ModuleManager\Feature\AutoloaderProviderInterface;
 use Laminas\ModuleManager\Feature\BootstrapListenerInterface;
 use Laminas\ModuleManager\Feature\ConfigProviderInterface;
-use Laminas\ApiTools\Provider\ApiToolsProviderInterface;
-use Laminas\Config\Config;
+use Laminas\ServiceManager\ServiceManager;
 
 ...
 
@@ -49,6 +51,7 @@ class Module implements
 
 public function onBootstrap(EventInterface $e)
 {
+    /** @phpstan-ignore-next-line */
     $eventManager = $e->getApplication()->getEventManager();
     $eventManager->attach('authentication', [$this, 'onAuthentication'], 10000);
 
