@@ -140,7 +140,7 @@ jobs:
       - store_artifacts:
           path: results
 
-  deploy-production-users-api:
+  deploy-production-microservice-skeleton:
     docker:
       - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
         auth:
@@ -154,13 +154,13 @@ jobs:
       - attach_workspace:
           at: /var/www/html
       - run:
-          name: Build Users API Image
+          name: Build Microservice Example API Image
           command: |
             docker login ${ACR_HOSTNAME_PD} -u ${ACR_LOGIN_PD} -p ${ACR_PASSWORD_PD}
-            docker build . -t ${ACR_HOSTNAME_PD}/users-api:${CIRCLE_TAG} --build-arg DOCKER_IMAGES_TAG=1.11.1
-            docker push ${ACR_HOSTNAME_PD}/users-api:${CIRCLE_TAG}
+            docker build . -t ${ACR_HOSTNAME_PD}/microservice-example-api:${CIRCLE_TAG} --build-arg DOCKER_IMAGES_TAG=1.11.1
+            docker push ${ACR_HOSTNAME_PD}/microservice-example-api:${CIRCLE_TAG}
 
-  deploy-production-users-cli:
+  deploy-production-microservice-example-cli:
     docker:
       - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
         auth:
@@ -174,11 +174,11 @@ jobs:
       - attach_workspace:
           at: /var/www/html
       - run:
-          name: Build Users Cronjob Image
+          name: Build Microservice Example Cronjob Image
           command: |
             docker login ${ACR_HOSTNAME_PD} -u ${ACR_LOGIN_PD} -p ${ACR_PASSWORD_PD}
-            docker build . -f Dockerfile_cli -t ${ACR_HOSTNAME_PD}/users-cli:${CIRCLE_TAG} --build-arg DOCKER_IMAGES_TAG=1.11.1
-            docker push ${ACR_HOSTNAME_PD}/users-cli:${CIRCLE_TAG}
+            docker build . -f Dockerfile_cli -t ${ACR_HOSTNAME_PD}/microservice-example-cli:${CIRCLE_TAG} --build-arg DOCKER_IMAGES_TAG=1.11.1
+            docker push ${ACR_HOSTNAME_PD}/microservice-example-cli:${CIRCLE_TAG}
 
 workflows:
   version: 2
@@ -220,14 +220,14 @@ workflows:
             - KEYCLOAK_MANAGEMENT
           requires:
             - build
-      - deploy-production-users-api:
+      - deploy-production-microservice-example-api:
           <<: *production_only
           context:
             - ACR_CREDENTIALS
           requires:
             - static
             - behat
-      - deploy-production-users-cli:
+      - deploy-production-microservice-example-cli:
           <<: *production_only
           context:
             - ACR_CREDENTIALS
