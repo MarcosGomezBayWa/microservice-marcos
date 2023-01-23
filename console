@@ -3,7 +3,7 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-use BayWaReLusy\UserManagement\MachineUserEntity;
+use BayWaReLusy\UserManagement\MachineUserIdentity;
 use Laminas\Authentication\AuthenticationService;
 use Laminas\Stdlib\ArrayUtils;
 use Symfony\Component\Console\Application;
@@ -23,8 +23,10 @@ $application        = new Application();
 
 /** @var AuthenticationService $authService */
 $authService = $serviceManager->get(AuthenticationService::class);
-$authService->getStorage()->write((new MachineUserEntity())->setApplicationId(MachineUserEntity::CONSOLE_APPLICATION));
+$authService->getStorage()->write((new MachineUserIdentity())->setApplicationId(MachineUserIdentity::CONSOLE_APPLICATION));
 
-// $application->add($serviceManager->get(<Console Command class>));
+// Add Console Commands
+//$application->add($serviceManager->get(RefreshUsers::class));
+//$application->add($serviceManager->get(CreateUserIndex::class));
 
 $application->run();
