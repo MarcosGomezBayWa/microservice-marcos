@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+set_time_limit(0);
+
+exec('vendor/bin/phing setup -propertyfile /etc/secrets/phing.ini');
+$result = 0;
+
+$argv[0] = str_replace('exec_cronjob', 'console', $argv[0]);
+
+$command = implode(' ', $argv);
+
+passthru($command, $result);
+
+die($result);

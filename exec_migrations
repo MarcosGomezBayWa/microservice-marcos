@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+set_time_limit(0);
+
+
+exec('vendor/bin/phing setup -propertyfile /etc/secrets/phing.ini');
+$result = 0;
+
+$migrations = glob(__DIR__ . "/data/DoctrineORMModule/Migrations/*");
+
+if (is_array($migrations) && count($migrations) > 0) {
+  passthru('vendor/bin/doctrine-module --no-interaction migrations:migrate', $result);
+}
+
+die($result);

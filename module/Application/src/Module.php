@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Application;
 
 use Laminas\Config\Config;
+use Laminas\ModuleManager\Feature\ConfigProviderInterface;
 
-class Module
+class Module implements ConfigProviderInterface
 {
     /**
-     * @return array<string,mixed>
+     * @return Config
      */
-    public function getConfig()
+    public function getConfig(): Config
     {
         $config = new Config(include __DIR__ . '/../config/module.config.php');
         $config->merge(new Config(include __DIR__ . '/../config/services.php'));

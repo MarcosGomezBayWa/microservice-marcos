@@ -27,10 +27,9 @@
         "ext-apcu": "*",
         "ext-curl": "*",
         "ext-json": "*",
-        "baywa-re-lusy/jwt-authentication": "^1.2",
         "baywa-re-lusy/laminas-api-problem": "^1.0",
         "baywa-re-lusy/queue": "^2.0",
-        "baywa-re-lusy/user-management": "^2.0",
+        "baywa-re-lusy/user-management": "^3.0",
         "doctrine/doctrine-orm-module": "^5.1",
         "doctrine/migrations": "^3.1",
         "laminas-api-tools/api-tools": "^1.6",
@@ -66,7 +65,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Application\\": "module/Application/src/"
+            "Application\\": "module/Application/src/",
+            "MyApi\\": "module/MyApi/src/"
         }
     },
     "autoload-dev": {

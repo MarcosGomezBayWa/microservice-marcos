@@ -1,0 +1,238 @@
+version: 2.1
+
+master_branch_only: &master_branch_only
+  filters:
+    branches:
+      only: /.*/
+    tags:
+      ignore: /.*/
+
+production_only: &production_only
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /.*/
+
+phing: &phing
+  name: Phing
+  command: |
+    vendor/bin/phing init -propertyfile testing-conf.ini -Dauth.serverAddress=$AUTH_SERVER_ADDRESS -Dauth.tokenEndpoint=$AUTH_TOKEN_ENDPOINT -Dauth.managementApi.usersEndpoint=$AUTH_MANAGEMENT_API_USERS_ENDPOINT -Dauth.managementApi.logoutEndpoint=$AUTH_MANAGEMENT_API_LOGOUT_ENDPOINT -Dauth.managementApi.clientId=$AUTH_MANAGEMENT_API_CLIENT_ID -Dauth.managementApi.clientSecret=$AUTH_MANAGEMENT_API_CLIENT_SECRET -Dauth.jwksUrl=$AUTH_JWKS_URL
+    rm -f data/cache/module*
+
+composer_install: &composer_install
+  name: Composer install
+  command: ./composer.phar install -n
+
+composer_save_cache: &composer_save_cache
+  key: composer-cache-{{ checksum "composer.lock" }}
+  paths:
+    - vendor
+
+composer_restore_cache: &composer_restore_cache
+  keys:
+    - composer-cache-{{ checksum "composer.lock" }}
+
+jobs:
+  build:
+    docker:
+      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+        auth:
+          username: ${ACR_LOGIN_PD}
+          password: ${ACR_PASSWORD_PD}
+    resource_class: large
+    working_directory: /var/www/html
+    steps:
+      - run:
+          name: Set git safe directory
+          command: git config --global --add safe.directory /var/www/html
+      - checkout
+      - restore_cache:
+          <<: *composer_restore_cache
+      - run:
+          <<: *composer_install
+      - run:
+          name: Documentation
+          command: php create_documentation.php
+      - save_cache:
+          <<: *composer_save_cache
+      - persist_to_workspace:
+          root: /var/www/html
+          paths:
+            - .
+
+  static:
+    docker:
+      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+        auth:
+          username: ${ACR_LOGIN_PD}
+          password: ${ACR_PASSWORD_PD}
+    working_directory: /var/www/html
+    resource_class: large
+    steps:
+      - attach_workspace:
+          at: /var/www/html
+      - run:
+          name: PHPStan
+          command: |
+            mkdir -p results/PHPStan
+            php -d memory_limit=4G vendor/bin/phpstan --error-format=junit > results/PHPStan/result.xml; php -d memory_limit=4G vendor/bin/phpstan
+      - run:
+          name: PHPCS
+          command: |
+            mkdir -p results/PHPCS
+            vendor/bin/phpcs module
+      - store_test_results:
+          path: results
+      - store_artifacts:
+          path: results
+
+  behat:
+    resource_class: large
+    parallelism: 11
+    docker:
+      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+        auth:
+          username: ${ACR_LOGIN_PD}
+          password: ${ACR_PASSWORD_PD}
+      - image: cimg/mysql:8.0
+        auth:
+          username: ppaulis
+          password: $DOCKERHUB_PASSWORD
+      - image: elasticsearch:8.6.0
+        auth:
+          username: ppaulis
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          - ELASTIC_USERNAME=elastic
+          - ELASTIC_PASSWORD=str0ng_passw0rdy
+          - transport.host: localhost
+          - network.host: 127.0.0.1
+          - http.port: 9200
+          - cluster.name: es-cluster
+          - discovery.type: single-node
+          - xpack.security.enabled: false
+          - ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+    working_directory: /var/www/html
+    steps:
+      - attach_workspace:
+          at: /var/www/html
+      - run:
+          name: Waiting for Services to finish Startup
+          environment:
+            DOCKERIZE_VERSION: v0.6.1
+          command: |
+            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+            dockerize -wait tcp://localhost:9200 -timeout 1m
+            dockerize -wait tcp://localhost:3306 -timeout 1m
+      - run:
+          <<: *phing
+      - run:
+          name: Behat
+          command: |
+            mkdir -p /run/apache2
+            /usr/sbin/httpd -D FOREGROUND 1>> /var/log/apache2/access.log 2>> /var/log/apache2/error.log &
+            export APACHE_HOSTNAME=http://localhost
+            mkdir -p results/Behat
+            ./console users:create-index
+            ./console users:refresh
+            vendor/bin/behat
+      - store_test_results:
+          path: results
+      - store_artifacts:
+          path: results
+
+  deploy-production-users-api:
+    docker:
+      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+        auth:
+          username: ${ACR_LOGIN_PD}
+          password: ${ACR_PASSWORD_PD}
+    resource_class: large
+    working_directory: /var/www/html
+    steps:
+      - setup_remote_docker:
+          version: 20.10.2
+      - attach_workspace:
+          at: /var/www/html
+      - run:
+          name: Build Users API Image
+          command: |
+            docker login ${ACR_HOSTNAME_PD} -u ${ACR_LOGIN_PD} -p ${ACR_PASSWORD_PD}
+            docker build . -t ${ACR_HOSTNAME_PD}/users-api:${CIRCLE_TAG} --build-arg DOCKER_IMAGES_TAG=1.11.1
+            docker push ${ACR_HOSTNAME_PD}/users-api:${CIRCLE_TAG}
+
+  deploy-production-users-cli:
+    docker:
+      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+        auth:
+          username: ${ACR_LOGIN_PD}
+          password: ${ACR_PASSWORD_PD}
+    resource_class: large
+    working_directory: /var/www/html
+    steps:
+      - setup_remote_docker:
+          version: 20.10.2
+      - attach_workspace:
+          at: /var/www/html
+      - run:
+          name: Build Users Cronjob Image
+          command: |
+            docker login ${ACR_HOSTNAME_PD} -u ${ACR_LOGIN_PD} -p ${ACR_PASSWORD_PD}
+            docker build . -f Dockerfile_cli -t ${ACR_HOSTNAME_PD}/users-cli:${CIRCLE_TAG} --build-arg DOCKER_IMAGES_TAG=1.11.1
+            docker push ${ACR_HOSTNAME_PD}/users-cli:${CIRCLE_TAG}
+
+workflows:
+  version: 2
+  master:
+    jobs:
+      - build:
+          <<: *master_branch_only
+          context:
+            - ACR_CREDENTIALS
+      - static:
+          <<: *master_branch_only
+          context:
+            - ACR_CREDENTIALS
+          requires:
+            - build
+      - behat:
+          <<: *master_branch_only
+          context:
+            - ACR_CREDENTIALS
+            - KEYCLOAK_MANAGEMENT
+          requires:
+            - build
+  production:
+    jobs:
+      - build:
+          <<: *production_only
+          context:
+            - ACR_CREDENTIALS
+      - static:
+          <<: *production_only
+          context:
+            - ACR_CREDENTIALS
+          requires:
+            - build
+      - behat:
+          <<: *production_only
+          context:
+            - ACR_CREDENTIALS
+            - KEYCLOAK_MANAGEMENT
+          requires:
+            - build
+      - deploy-production-users-api:
+          <<: *production_only
+          context:
+            - ACR_CREDENTIALS
+          requires:
+            - static
+            - behat
+      - deploy-production-users-cli:
+          <<: *production_only
+          context:
+            - ACR_CREDENTIALS
+          requires:
+            - static
+            - behat
