@@ -4,7 +4,7 @@ namespace MyApi\V1\Rest\MyService;
 
 use Laminas\ApiTools\ApiProblem\ApiProblem;
 use Laminas\ApiTools\Rest\AbstractResourceListener;
-use Laminas\Stdlib\Parameters;
+use Laminas\Paginator\Adapter\ArrayAdapter;
 use OpenApi\Annotations as OA;
 
 /**
@@ -62,7 +62,7 @@ class MyServiceResource extends AbstractResourceListener
     /**
      * Fetch all or a subset of resources
      *
-     * @param  array|Parameters $params
+     * @param  array $params
      * @return ApiProblem|mixed
      *
      * @OA\Get(
@@ -107,7 +107,7 @@ class MyServiceResource extends AbstractResourceListener
      */
     public function fetchAll($params = [])
     {
-        return new ApiProblem(405, 'The GET method has not been defined for collections');
+        return new MyServiceCollection(new ArrayAdapter([]));
     }
 
     /**

@@ -114,12 +114,11 @@ class FeatureContext implements
 //                '<client ID>',
 //                '<client secret>'
 //            ))
-//            ->addUserCredentials(new UserCredentials(
-//                '<username>',
-//                '<password>',
-//                '<client ID>'
-//            ))
-            ;
+            ->addUserCredentials(new \BayWaReLusy\BehatContext\AuthContext\UserCredentials(
+                'pascal.paulis.testing',
+                'Azerty!!1234',
+                'tms-frontend'
+            ));
 
         $adapter = new AwsSqsAdapter(
             $this->getServiceManager()->get('config')['aws']['region'],
