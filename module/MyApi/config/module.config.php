@@ -28,7 +28,7 @@ return [
             'listener' => \MyApi\V1\Rest\MyService\MyServiceResource::class,
             'route_name' => 'my-api.rest.my-service',
             'route_identifier_name' => 'my_service_id',
-            'collection_name' => 'my_service',
+            'collection_name' => 'myService',
             'entity_http_methods' => [
                 0 => 'GET',
                 1 => 'PATCH',
