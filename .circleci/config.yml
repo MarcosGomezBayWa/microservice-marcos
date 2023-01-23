@@ -140,7 +140,7 @@ jobs:
       - store_artifacts:
           path: results
 
-  deploy-production-microservice-skeleton:
+  deploy-production-microservice-example-api:
     docker:
       - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
         auth:
