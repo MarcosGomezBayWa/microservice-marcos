@@ -134,8 +134,6 @@ jobs:
             /usr/sbin/httpd -D FOREGROUND 1>> /var/log/apache2/access.log 2>> /var/log/apache2/error.log &
             export APACHE_HOSTNAME=http://localhost
             mkdir -p results/Behat
-            ./console users:create-index
-            ./console users:refresh
             vendor/bin/behat
       - store_test_results:
           path: results
