@@ -43,6 +43,8 @@ return [
                             'paths' =>
                                 [
                                     __DIR__ . '/../../module/Application/src',
+                                    __DIR__ . '/../../module/MyApi/src/V1/Rest',
+                                    __DIR__ . '/../../module/MyApi/src/V1/Rpc',
                                 ],
                         ],
                     // default metadata driver, aggregates all other drivers into a single one.
@@ -52,7 +54,9 @@ return [
                             'drivers' =>
                                 [
                                     // register `doctrine_driver` for any entity under namespace `My\Namespace`
-                                    'Application' => 'doctrine_driver',
+                                    'Application'   => 'doctrine_driver',
+                                    'MyApi\V1\Rest' => 'doctrine_driver',
+                                    'MyApi\V1\Rpc'  => 'doctrine_driver',
                                 ],
                         ],
                 ],
