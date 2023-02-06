@@ -44,7 +44,7 @@ return [
                                 [
                                     __DIR__ . '/../../module/Application/src',
                                     __DIR__ . '/../../module/MyApi/src/V1/Rest',
-                                    __DIR__ . '/../../module/MyApi/src/V1/Rpc',
+                                    // __DIR__ . '/../../module/MyApi/src/V1/Rpc',
                                 ],
                         ],
                     // default metadata driver, aggregates all other drivers into a single one.
