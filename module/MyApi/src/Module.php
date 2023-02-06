@@ -178,7 +178,6 @@ class Module implements
                     ->setScopes($tokenDecoded->getScopes());
             }
 
-            // @phpstan-ignore-next-line
             $authenticatedIdentity = new AuthenticatedIdentity($user);
 
             /** @var AuthenticationService $authService */
