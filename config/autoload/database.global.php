@@ -56,7 +56,7 @@ return [
                                     // register `doctrine_driver` for any entity under namespace `My\Namespace`
                                     'Application'   => 'doctrine_driver',
                                     'MyApi\V1\Rest' => 'doctrine_driver',
-                                    'MyApi\V1\Rpc'  => 'doctrine_driver',
+                                    // 'MyApi\V1\Rpc'  => 'doctrine_driver',
                                 ],
                         ],
                 ],
