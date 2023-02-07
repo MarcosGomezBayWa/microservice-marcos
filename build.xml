@@ -94,11 +94,6 @@
                 <isset property="auth.jwksUrl"/>
                 <isset property="auth.tokenEndpoint"/>
                 <isset property="auth.serverAddress"/>
-                <isset property="auth.frontendClientUuid"/>
-                <isset property="auth.managementApi.usersEndpoint"/>
-                <isset property="auth.managementApi.logoutEndpoint"/>
-                <isset property="auth.managementApi.clientId"/>
-                <isset property="auth.managementApi.clientSecret"/>
             </and>
             <then>
                 <loadfile property="auth.config" file="${project.basedir}/config/autoload/auth.local.php.dist">
@@ -107,11 +102,6 @@
                             <token key="auth.jwksUrl" value="${auth.jwksUrl}"/>
                             <token key="auth.tokenEndpoint" value="${auth.tokenEndpoint}"/>
                             <token key="auth.serverAddress" value="${auth.serverAddress}"/>
-                            <token key="auth.frontendClientUuid" value="${auth.frontendClientUuid}"/>
-                            <token key="auth.managementApi.usersEndpoint" value="${auth.managementApi.usersEndpoint}"/>
-                            <token key="auth.managementApi.logoutEndpoint" value="${auth.managementApi.logoutEndpoint}"/>
-                            <token key="auth.managementApi.clientId" value="${auth.managementApi.clientId}"/>
-                            <token key="auth.managementApi.clientSecret" value="${auth.managementApi.clientSecret}"/>
                         </replacetokens>
                     </filterchain>
                 </loadfile>

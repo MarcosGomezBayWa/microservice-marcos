@@ -4,16 +4,8 @@ return
     [
         'auth' =>
             [
-                'serverAddress'      => '@auth.serverAddress@',
-                'tokenEndpoint'      => '@auth.tokenEndpoint@',
-                'jwksUrl'            => '@auth.jwksUrl@',
-                'frontendClientUuid' => '@auth.frontendClientUuid@',
-                'managementApi' =>
-                    [
-                        'clientId'       => '@auth.managementApi.clientId@',
-                        'clientSecret'   => '@auth.managementApi.clientSecret@',
-                        'usersEndpoint'  => '@auth.managementApi.usersEndpoint@',
-                        'logoutEndpoint' => '@auth.managementApi.logoutEndpoint@',
-                    ]
+                'serverAddress' => '@auth.serverAddress@',
+                'tokenEndpoint' => '@auth.tokenEndpoint@',
+                'jwksUrl'       => '@auth.jwksUrl@',
             ],
     ];
