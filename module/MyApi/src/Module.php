@@ -168,7 +168,7 @@ class Module implements
             // Decode & validate the token
             $tokenDecoded = $tokenService->validateToken($token, $jwkCache, $sm->get('config')['auth']['jwksUrl']);
 
-            // Find the corresponding user. If the token contains
+            // Find the corresponding user
             if (!is_null($tokenDecoded->getEmail())) {
                 $user = UserIdentity::createFromJWT($tokenDecoded);
             } else {
