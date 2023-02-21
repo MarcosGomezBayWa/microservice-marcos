@@ -140,6 +140,21 @@ jobs:
       - store_artifacts:
           path: results
 
+  remove-dev-dependencies:
+    docker:
+      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+        auth:
+          username: ${ACR_LOGIN_PD}
+          password: ${ACR_PASSWORD_PD}
+    resource_class: large
+    working_directory: /var/www/html
+    steps:
+      - attach_workspace:
+          at: /var/www/html
+      - run:
+          name: Remove dev dependencies
+          command: ./composer.phar install -n --no-dev
+
   deploy-production-microservice-example-api:
     docker:
       - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
@@ -220,17 +235,22 @@ workflows:
             - KEYCLOAK_MANAGEMENT
           requires:
             - build
+      - remove-dev-dependencies:
+          <<: *production_only
+          context:
+            - ACR_CREDENTIALS
+          requires:
+            - static
+            - behat
       - deploy-production-microservice-example-api:
           <<: *production_only
           context:
             - ACR_CREDENTIALS
           requires:
-            - static
-            - behat
+            - remove-dev-dependencies
       - deploy-production-microservice-example-cli:
           <<: *production_only
           context:
             - ACR_CREDENTIALS
           requires:
-            - static
-            - behat
+            - remove-dev-dependencies

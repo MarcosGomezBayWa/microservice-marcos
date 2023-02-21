@@ -4,6 +4,7 @@ return [
     // Development time modules
     'modules' => [
         'Laminas\ApiTools\Admin',
+        'Laminas\ComposerAutoloading',
     ],
     // development time configuration globbing
     'module_listener_options' => [
