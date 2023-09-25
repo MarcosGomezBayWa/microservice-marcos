@@ -15,6 +15,10 @@ BayWa r.e. Microservice Skeleton
 
 There is an example API `MyApi` and an example RESTful Service `MyService` already configured.
 
+# Creation of documentation
+1. Execute the script create_documentation.php. The file swagger.json is created in the public folder.
+2. In the public/documentation folder, find the SwaggerUIBundle creation code (normally in index.html or in swagger-initializer.js) and change the `URL` parameter to point to our `/swagger.json` file.
+
 # Authentication
 
 Authentication is handled in the file :
