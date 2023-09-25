@@ -42,6 +42,7 @@
         "laminas/laminas-di": "^3.12",
         "phing/phing": "^2.17",
         "ramsey/uuid": "^4.1",
+        "swagger-api/swagger-ui": "^5.7",
         "symfony/console": "^6.2",
         "zircote/swagger-php": "^4.4"
     },
@@ -80,6 +81,9 @@
         ]
     },
     "scripts": {
+        "post-install-cmd": [
+            "php swagger_copy_assets.php"
+        ],
         "development-disable": "laminas-development-mode disable",
         "development-enable": "laminas-development-mode enable",
         "development-status": "laminas-development-mode status"

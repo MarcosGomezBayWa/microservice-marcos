@@ -2,3 +2,5 @@ apigility-ui/
 zf-apigility/
 api-tools-ui/
 api-tools/
+documentation/*
+!documentation/index.html
