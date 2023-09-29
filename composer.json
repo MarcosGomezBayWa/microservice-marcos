@@ -81,9 +81,6 @@
         ]
     },
     "scripts": {
-        "post-install-cmd": [
-            "php swagger_copy_assets.php"
-        ],
         "development-disable": "laminas-development-mode disable",
         "development-enable": "laminas-development-mode enable",
         "development-status": "laminas-development-mode status"
