@@ -5,14 +5,12 @@ namespace MyApi\V1\Rest\MyService;
 use Laminas\ApiTools\ApiProblem\ApiProblem;
 use Laminas\ApiTools\Rest\AbstractResourceListener;
 use Laminas\Paginator\Adapter\ArrayAdapter;
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 
-/**
- * @OA\Tag(
- *     name="My Service",
- *     description="My Service Description"
- * )
- */
+#[OA\Tag(
+    name: "My Service",
+    description: "My Service Description"
+)]
 class MyServiceResource extends AbstractResourceListener
 {
     /**
@@ -64,47 +62,57 @@ class MyServiceResource extends AbstractResourceListener
      *
      * @param  array $params
      * @return ApiProblem|mixed
-     *
-     * @OA\Get(
-     *     path="/my-service",
-     *     tags={"My Service"},
-     *     summary="My Service description.",
-     *     @OA\Response(
-     *         response="200",
-     *         description="The list of My Service.",
-     *         @OA\MediaType(
-     *             mediaType="application/hal+json",
-     *             @OA\Schema(ref="#/components/schemas/MyServiceCollection")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         description=
-     *         "The user isn't authorized to access this resource (invalid or expired access token).",
-     *         @OA\MediaType(mediaType="application/problem+json")
-     *     ),
-     *     @OA\Response(
-     *         response="403",
-     *         description="The user doesn't have the permission to access this resource.",
-     *         @OA\MediaType(mediaType="application/problem+json")
-     *     ),
-     *     @OA\Response(
-     *         response="406",
-     *         description="Content not acceptable.",
-     *         @OA\MediaType(mediaType="application/problem+json")
-     *     ),
-     *     @OA\Response(
-     *         response="415",
-     *         description="Media Type unsupported.",
-     *         @OA\MediaType(mediaType="application/problem+json")
-     *     ),
-     *     @OA\Response(
-     *         response="500",
-     *         description="Internal server error.",
-     *         @OA\MediaType(mediaType="application/problem+json")
-     *     )
-     * )
      */
+    #[OA\Get(
+        path: "/my-service",
+        summary: "My Service description.",
+        tags: ["My Service"],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "The list of My Service.",
+                content: new OA\MediaType(
+                    mediaType: "application/hal+json",
+                    schema: new OA\Schema(ref: "#/components/schemas/MyServiceCollection")
+                )
+            ),
+            new OA\Response(
+                response: "401",
+                description: "The user isn't authorized to access this resource (invalid or expired access token).",
+                content: new OA\MediaType(
+                    mediaType: "application/problem+json"
+                )
+            ),
+            new OA\Response(
+                response: "403",
+                description: "The user doesn't have the permission to access this resource.",
+                content: new OA\MediaType(
+                    mediaType: "application/problem+json"
+                )
+            ),
+            new OA\Response(
+                response: "406",
+                description: "Content not acceptable.",
+                content: new OA\MediaType(
+                    mediaType: "application/problem+json"
+                )
+            ),
+            new OA\Response(
+                response: "415",
+                description: "Media Type unsupported.",
+                content: new OA\MediaType(
+                    mediaType: "application/problem+json"
+                )
+            ),
+            new OA\Response(
+                response: "500",
+                description: "Internal server error.",
+                content: new OA\MediaType(
+                    mediaType: "application/problem+json"
+                )
+            )
+        ]
+    )]
     public function fetchAll($params = [])
     {
         return new MyServiceCollection(new ArrayAdapter([]));

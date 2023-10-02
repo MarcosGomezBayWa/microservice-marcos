@@ -22,86 +22,70 @@ use Laminas\ModuleManager\Feature\AutoloaderProviderInterface;
 use Laminas\ModuleManager\Feature\BootstrapListenerInterface;
 use Laminas\ModuleManager\Feature\ConfigProviderInterface;
 use Laminas\ServiceManager\ServiceManager;
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 
-/**
- * @OA\Info(
- *     title="BayWa r.e. Example API",
- *     description="This is the BayWa r.e. Example API documentation. More about BayWa r.e. on https://baywa-re.com/",
- *     version="1.1.0",
- *     @OA\Contact(
- *         email="pascal.paulis@baywa-re.com"
- *     )
- * )
- *
- * @OA\SecurityScheme(
- *   securityScheme="api_auth",
- *   type="oauth2",
- *   @OA\Flow(
- *      tokenUrl=TOKEN_URL,
- *      flow="clientCredentials",
- *      scopes={}
- *   )
- * )
- *
- * @OA\Server(url=API_HOST)
- *
- * @OA\Schema(
- *     schema="HalCollectionLinks",
- *     @OA\Property(
- *         property="_links",
- *         type="object",
- *         @OA\Property(
- *             property="self",
- *             type="object",
- *             @OA\Property(
- *                 property="href",
- *                 type="string"
- *             )
- *         ),
- *         @OA\Property(
- *             property="first",
- *             type="object",
- *             @OA\Property(
- *                 property="href",
- *                 type="string"
- *             )
- *         ),
- *         @OA\Property(
- *             property="last",
- *             type="object",
- *             @OA\Property(
- *                 property="href",
- *                 type="string"
- *             )
- *         )
- *     )
- * )
- *
- * @OA\Schema(
- *     schema="HalCollectionCounts",
- *     @OA\Property(
- *         property="page_count",
- *         type="integer",
- *         example=42
- *     ),
- *     @OA\Property(
- *         property="page_size",
- *         type="integer",
- *         example=100
- *     ),
- *     @OA\Property(
- *         property="total_items",
- *         type="integer",
- *         example=5359
- *     ),
- *     @OA\Property(
- *         property="page",
- *         type="integer",
- *         example=3
- *     )
- * )
- */
+#[OA\Info(
+    version: "1.1.0",
+    description: "This is the BayWa r.e. Example API documentation. More about BayWa r.e. on https://baywa-re.com/",
+    title: "BayWa r.e. Example API",
+    contact: new OA\Contact(
+        name: "Pascal Paulis",
+        email: "pascal.paulis@baywa-re.com"
+    )
+)]
+#[OA\SecurityScheme(
+    securityScheme: "api_auth",
+    type: "oauth2",
+    flows: [
+        new OA\Flow(
+            tokenUrl: TOKEN_URL,
+            flow: "clientCredentials",
+            scopes: []
+        )
+    ]
+)]
+#[OA\Server(url: API_HOST)]
+#[OA\Schema(
+    schema: "HalCollectionLinks",
+    properties: [
+        new OA\Property(
+            property: "_links",
+            properties: [
+                new OA\Property(
+                    property: "self",
+                    properties: [
+                        new OA\Property(property: "href", type: "string")
+                    ],
+                    type: "object"
+                ),
+                new OA\Property(
+                    property: "first",
+                    properties: [
+                        new OA\Property(property: "href", type: "string")
+                    ],
+                    type: "object"
+                ),
+                new OA\Property(
+                    property: "last",
+                    properties: [
+                        new OA\Property(property: "href", type: "string")
+                    ],
+                    type: "object"
+                )
+            ],
+            type: "object"
+        )
+    ]
+)]
+#[OA\Schema(
+    schema: "HalCollectionCounts",
+    properties: [
+        new OA\Property(property: "page_count", type: "integer", example: 42),
+        new OA\Property(property: "page_size", type: "integer", example: 100),
+        new OA\Property(property: "total_items", type: "integer", example: 5359),
+        new OA\Property(property: "page", type: "integer", example: 3)
+    ]
+)]
 class Module implements
     ApiToolsProviderInterface,
     ConfigProviderInterface,

@@ -2,11 +2,9 @@
 
 namespace MyApi\V1\Rest\MyService;
 
-use OpenApi\Annotations as OA;
+use OpenApi\Attributes as OA;
 
-/**
- * @OA\Schema()
- */
+#[OA\Schema]
 class MyServiceEntity
 {
 }

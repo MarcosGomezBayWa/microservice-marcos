@@ -38,7 +38,7 @@ return [
                     // defines an annotation driver with two paths, and names it `doctrine_driver`
                     'doctrine_driver' =>
                         [
-                            'class' => \Doctrine\ORM\Mapping\Driver\AnnotationDriver::class,
+                            'class' => \Doctrine\ORM\Mapping\Driver\AttributeDriver::class,
                             'cache' => 'zf',
                             'paths' =>
                                 [
