@@ -26,6 +26,9 @@ use OpenApi\Attributes as OA;
         new OA\Schema(ref: "#/components/schemas/HalCollectionCounts"),
     ]
 )]
+/**
+ * @extends Paginator<int, MyServiceEntity>
+ */
 class MyServiceCollection extends Paginator
 {
 }
