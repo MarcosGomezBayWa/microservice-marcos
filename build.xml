@@ -81,7 +81,12 @@
     </target>
 
     <target name="db-migration" description="Apply all database migrations">
-        <exec checkreturn="true" command="vendor/bin/doctrine-module migrations:migrate --no-interaction" passthru="true"/>
+        <if>
+            <available extension="php" file="data/DoctrineORMModule/Migrations/*" type="file" property="exists"/>
+             <then>
+                 <exec checkreturn="true" command="vendor/bin/doctrine-module migrations:migrate --no-interaction" passthru="true"/>
+             </then>
+        </if>
     </target>
 
     <target name="db-clear-cache" description="Clear database caches">
