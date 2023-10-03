@@ -67,6 +67,27 @@ return [
     ],
     'api-tools-hal' => [
         'metadata_map' => [
+            'Doctrine\\ORM\\PersistentCollection' => [
+                'hydrator' => 'ArraySerializableHydrator',
+                'entity_identifier_name' => 'id',
+                'route_identifier_name' => 'id',
+                'route_name' => 'doctrine-orm-persistent-collection',
+                'isCollection' => true,
+            ],
+            'Doctrine\\Common\\Collections\\ArrayCollection' => [
+                'hydrator' => 'ArraySerializableHydrator',
+                'entity_identifier_name' => 'id',
+                'route_identifier_name' => 'id',
+                'route_name' => 'doctrine-common-collections-array-collection',
+                'isCollection' => true,
+            ],
+            'Doctrine\\ORM\\LazyCriteriaCollection' => [
+                'hydrator' => 'ArraySerializableHydrator',
+                'entity_identifier_name' => 'id',
+                'route_identifier_name' => 'id',
+                'route_name' => 'doctrine-orm-lazy-criteria-collection',
+                'isCollection' => true,
+            ],
             \MyApi\V1\Rest\MyService\MyServiceEntity::class => [
                 'entity_identifier_name' => 'id',
                 'route_name' => 'my-api.rest.my-service',
