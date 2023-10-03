@@ -17,7 +17,7 @@ production_only: &production_only
 phing: &phing
   name: Phing
   command: |
-    vendor/bin/phing init -propertyfile testing-conf.ini -Dauth.serverAddress=$AUTH_SERVER_ADDRESS -Dauth.tokenEndpoint=$AUTH_TOKEN_ENDPOINT -Dauth.managementApi.usersEndpoint=$AUTH_MANAGEMENT_API_USERS_ENDPOINT -Dauth.managementApi.logoutEndpoint=$AUTH_MANAGEMENT_API_LOGOUT_ENDPOINT -Dauth.managementApi.clientId=$AUTH_MANAGEMENT_API_CLIENT_ID -Dauth.managementApi.clientSecret=$AUTH_MANAGEMENT_API_CLIENT_SECRET -Dauth.jwksUrl=$AUTH_JWKS_URL
+    vendor/bin/phing init db-migration -propertyfile testing-conf.ini -Dauth.serverAddress=$AUTH_SERVER_ADDRESS -Dauth.tokenEndpoint=$AUTH_TOKEN_ENDPOINT -Dauth.managementApi.usersEndpoint=$AUTH_MANAGEMENT_API_USERS_ENDPOINT -Dauth.managementApi.logoutEndpoint=$AUTH_MANAGEMENT_API_LOGOUT_ENDPOINT -Dauth.managementApi.clientId=$AUTH_MANAGEMENT_API_CLIENT_ID -Dauth.managementApi.clientSecret=$AUTH_MANAGEMENT_API_CLIENT_SECRET -Dauth.jwksUrl=$AUTH_JWKS_URL
     rm -f data/cache/module*
 
 composer_install: &composer_install
