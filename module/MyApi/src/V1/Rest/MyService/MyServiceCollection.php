@@ -5,9 +5,6 @@ namespace MyApi\V1\Rest\MyService;
 use Laminas\Paginator\Paginator;
 use OpenApi\Attributes as OA;
 
-/**
- * @extends Paginator<int, MyServiceEntity>
- */
 #[OA\Schema(
     allOf: [
         new OA\Schema(ref: "#/components/schemas/HalCollectionLinks"),
