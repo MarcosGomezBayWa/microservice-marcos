@@ -3,6 +3,7 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
+use Application\Command\ApiDocumentationCommand;
 use BayWaReLusy\UserManagement\MachineUserIdentity;
 use Laminas\Authentication\AuthenticationService;
 use Laminas\Stdlib\ArrayUtils;
@@ -26,6 +27,7 @@ $authService = $serviceManager->get(AuthenticationService::class);
 $authService->getStorage()->write((new MachineUserIdentity())->setApplicationId(MachineUserIdentity::CONSOLE_APPLICATION));
 
 // Add Console Commands
+$application->add($serviceManager->get(ApiDocumentationCommand::class));
 //$application->add($serviceManager->get(RefreshUsers::class));
 //$application->add($serviceManager->get(CreateUserIndex::class));
 
