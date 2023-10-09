@@ -52,8 +52,8 @@ jobs:
       - run:
           <<: *composer_install
       - run:
-          name: Documentation
-          command: php create_documentation.php
+          name: API documentation
+          command: php console app:api-documentation
       - save_cache:
           <<: *composer_save_cache
       - persist_to_workspace:
