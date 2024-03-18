@@ -18,9 +18,9 @@ use Laminas\Config\Config;
 use Laminas\EventManager\EventInterface;
 use Laminas\Http\Header\GenericHeader;
 use Laminas\Http\Request;
-use Laminas\ModuleManager\Feature\AutoloaderProviderInterface;
 use Laminas\ModuleManager\Feature\BootstrapListenerInterface;
 use Laminas\ModuleManager\Feature\ConfigProviderInterface;
+use Laminas\Mvc\MvcEvent;
 use Laminas\ServiceManager\ServiceManager;
 use OpenApi\Attributes as OA;
 
@@ -105,6 +105,14 @@ class Module implements
         /** @phpstan-ignore-next-line */
         $eventManager = $e->getApplication()->getEventManager();
         $eventManager->attach('authentication', [$this, 'onAuthentication'], 10000);
+
+        // Nginx runs on port 8090, but docker compose (or Kubernetes) receives requests on port 80 and redirects them
+        // to port 8090 internally. However, the Laminas Admin UI generates URLs based on SERVER_PORT in its layout.
+        // So, all subsequent requests to static files in the Admin UI will try to load them on port 8090. To prevent
+        // this, we reset the port.
+        $eventManager->attach(MvcEvent::EVENT_ROUTE, function () {
+            $_SERVER['SERVER_PORT'] = '';
+        }, 1000);
 
         // Ignore Annotations from OpenApi in Doctrine AnnotationReader
         AnnotationReader::addGlobalIgnoredName('OA\Schema');
