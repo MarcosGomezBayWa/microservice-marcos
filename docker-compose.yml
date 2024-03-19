@@ -46,7 +46,7 @@ services:
 
   elasticsearch:
     image: elasticsearch:8.12.2
-    container_name: baywa_cde_elasticsearch
+    container_name: baywa_microservice_skeleton_elasticsearch
     environment:
       - ELASTIC_USERNAME=elastic
       - ELASTIC_PASSWORD=str0ng_passw0rd
@@ -61,7 +61,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - elasticsearch_tms_data:/usr/share/elasticsearch/data
+      - elasticsearch_microservice_skeleton_data:/usr/share/elasticsearch/data
     networks:
       - baywaregateway
 
@@ -77,6 +77,10 @@ services:
       MYSQL_ROOT_PASSWORD: 'password'
     networks:
       - baywaregateway
+
+volumes:
+  elasticsearch_microservice_skeleton_data:
+    driver: local
 
 networks:
   baywaregateway:
