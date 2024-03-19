@@ -1,0 +1,87 @@
+version: "3.8"
+
+services:
+
+  traefik:
+    image: "traefik:v2.11"
+    container_name: baywa_microservice_skeleton_api_traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  api-nginx:
+    image: crpdlusy.azurecr.io/nginx:2.0.0
+    container_name: baywa_microservice_skeleton_api_nginx
+    depends_on:
+      - traefik
+    volumes:
+      - .:/var/www/html
+    networks:
+      - baywaregateway
+    environment:
+      - NGINX_PORT=8090
+      - PHP_FPM_HOST=baywa_microservice_skeleton_api_php_fpm
+    ports:
+      - "80:8090"
+
+  api-php-fpm:
+    image: ${PHP_FPM_DOCKER_IMAGE}
+    container_name: baywa_microservice_skeleton_api_php_fpm
+    depends_on:
+      - database
+    volumes:
+      - .:/var/www/html
+    networks:
+      - baywaregateway
+    environment:
+      - ENV=testing
+      - NGINX_HOSTNAME=http://baywa_microservice_skeleton_api_nginx:8090
+      - LISTEN_ON_ADDRESS=baywa_microservice_skeleton_api_php_fpm
+
+  elasticsearch:
+    image: elasticsearch:8.12.2
+    container_name: baywa_microservice_skeleton_elasticsearch
+    environment:
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=str0ng_passw0rd
+      - node.name=elasticsearch-cde
+      - cluster.name=elasticsearch-cde
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - xpack.security.http.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_microservice_skeleton_data:/usr/share/elasticsearch/data
+    networks:
+      - baywaregateway
+
+  database:
+    image: mysql:8.0
+    container_name: baywa_microservice_skeleton_db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: on-failure
+    environment:
+      MYSQL_DATABASE: 'microservice_skeleton'
+      MYSQL_USER: 'microservice_skeleton'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    networks:
+      - baywaregateway
+
+volumes:
+  elasticsearch_microservice_skeleton_data:
+    driver: local
+
+networks:
+  baywaregateway:
+    driver: bridge

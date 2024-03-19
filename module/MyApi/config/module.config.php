@@ -67,21 +67,21 @@ return [
     ],
     'api-tools-hal' => [
         'metadata_map' => [
-            'Doctrine\\ORM\\PersistentCollection' => [
+            \Doctrine\ORM\PersistentCollection::class => [
                 'hydrator' => 'ArraySerializableHydrator',
                 'entity_identifier_name' => 'id',
                 'route_identifier_name' => 'id',
                 'route_name' => 'doctrine-orm-persistent-collection',
                 'isCollection' => true,
             ],
-            'Doctrine\\Common\\Collections\\ArrayCollection' => [
+            \Doctrine\Common\Collections\ArrayCollection::class => [
                 'hydrator' => 'ArraySerializableHydrator',
                 'entity_identifier_name' => 'id',
                 'route_identifier_name' => 'id',
                 'route_name' => 'doctrine-common-collections-array-collection',
                 'isCollection' => true,
             ],
-            'Doctrine\\ORM\\LazyCriteriaCollection' => [
+            \Doctrine\ORM\LazyCriteriaCollection::class => [
                 'hydrator' => 'ArraySerializableHydrator',
                 'entity_identifier_name' => 'id',
                 'route_identifier_name' => 'id',
