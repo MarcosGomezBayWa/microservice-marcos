@@ -93,8 +93,8 @@ class FeatureContext implements
      */
     public function gatherContexts(BeforeScenarioScope $scope): void
     {
-        if (!is_string(getenv('APACHE_HOSTNAME'))) {
-            throw new Exception('Env var APACHE_HOSTNAME must be set.');
+        if (!is_string(getenv('NGINX_HOSTNAME'))) {
+            throw new Exception('Env var NGINX_HOSTNAME must be set.');
         }
 
         $this->gatherConsoleContext($scope);
@@ -102,7 +102,7 @@ class FeatureContext implements
         $this->gatherHalContext($scope);
         $this->getHalContext()
             ->setJsonFilesPath((string)realpath(__DIR__ . '/../../features/_files'))
-            ->setBaseUrl(getenv('APACHE_HOSTNAME'));
+            ->setBaseUrl(getenv('NGINX_HOSTNAME'));
 
         $this->gatherAuthContext($scope);
         $this->getAuthContext()
