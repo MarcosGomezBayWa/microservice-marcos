@@ -98,9 +98,9 @@ jobs:
             docker-compose up -d --quiet-pull
             curl -L -o dockerize.tar.gz https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
             docker-compose exec --user=circleci api-php-fpm tar -C /tmp -xzvf dockerize.tar.gz
-            docker-compose exec --user=circleci api-php-fpm /tmp/dockerize -wait tcp://baywa_ncr_db:3306 -timeout 1m
-            docker-compose exec --user=circleci api-php-fpm /tmp/dockerize -wait tcp://baywa_ncr_db:9200 -timeout 1m
-            docker-compose exec --user=circleci api-php-fpm /tmp/dockerize -wait tcp://baywa_ncr_api_nginx:8090 -timeout 1m
+            docker-compose exec --user=circleci api-php-fpm /tmp/dockerize -wait tcp://baywa_microservice_skeleton_db:3306 -timeout 1m
+            docker-compose exec --user=circleci api-php-fpm /tmp/dockerize -wait tcp://baywa_microservice_skeleton_elasticsearch:9200 -timeout 1m
+            docker-compose exec --user=circleci api-php-fpm /tmp/dockerize -wait tcp://baywa_microservice_skeleton_api_nginx:8090 -timeout 1m
       - run:
           name: Phing
           command: |

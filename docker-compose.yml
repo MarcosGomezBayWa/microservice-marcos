@@ -67,7 +67,7 @@ services:
 
   database:
     image: mysql:8.0
-    container_name: baywa_microservice_skeleton_api_db
+    container_name: baywa_microservice_skeleton_db
     command: --default-authentication-plugin=mysql_native_password
     restart: on-failure
     environment:
