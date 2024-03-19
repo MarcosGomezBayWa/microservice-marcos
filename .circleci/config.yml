@@ -107,6 +107,9 @@ jobs:
             docker-compose exec --user=circleci api-php-fpm vendor/bin/phing init -propertyfile testing-conf.ini -Dauth.serverAddress=$AUTH_SERVER_ADDRESS -Dauth.tokenEndpoint=$AUTH_TOKEN_ENDPOINT -Dauth.managementApi.usersEndpoint=$AUTH_MANAGEMENT_API_USERS_ENDPOINT -Dauth.managementApi.logoutEndpoint=$AUTH_MANAGEMENT_API_LOGOUT_ENDPOINT -Dauth.managementApi.clientId=$AUTH_MANAGEMENT_API_CLIENT_ID -Dauth.managementApi.clientSecret=$AUTH_MANAGEMENT_API_CLIENT_SECRET -Dauth.jwksUrl=$AUTH_JWKS_URL
             docker-compose exec --user=circleci api-php-fpm rm -f data/cache/module*
       - run:
+          name: Doctrine Schema Validation
+          command: docker-compose exec --user=circleci api-php-fpm vendor/bin/doctrine-module orm:validate-schema
+      - run:
           name: Behat
           command: |
             docker-compose exec --user=circleci api-php-fpm mkdir -p results/Behat
