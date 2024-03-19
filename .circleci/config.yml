@@ -14,12 +14,6 @@ production_only: &production_only
     tags:
       only: /.*/
 
-phing: &phing
-  name: Phing
-  command: |
-    vendor/bin/phing init -propertyfile testing-conf.ini -Dauth.serverAddress=$AUTH_SERVER_ADDRESS -Dauth.tokenEndpoint=$AUTH_TOKEN_ENDPOINT -Dauth.managementApi.usersEndpoint=$AUTH_MANAGEMENT_API_USERS_ENDPOINT -Dauth.managementApi.logoutEndpoint=$AUTH_MANAGEMENT_API_LOGOUT_ENDPOINT -Dauth.managementApi.clientId=$AUTH_MANAGEMENT_API_CLIENT_ID -Dauth.managementApi.clientSecret=$AUTH_MANAGEMENT_API_CLIENT_SECRET -Dauth.jwksUrl=$AUTH_JWKS_URL
-    rm -f data/cache/module*
-
 composer_install: &composer_install
   name: Composer install
   command: ./composer.phar install -n
@@ -36,7 +30,7 @@ composer_restore_cache: &composer_restore_cache
 jobs:
   build:
     docker:
-      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+      - image: ${ACR_HOSTNAME_PD}/alpine-php82-build:2.1.0
         auth:
           username: ${ACR_LOGIN_PD}
           password: ${ACR_PASSWORD_PD}
@@ -63,7 +57,7 @@ jobs:
 
   static:
     docker:
-      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+      - image: ${ACR_HOSTNAME_PD}/alpine-php82-build:2.1.0
         auth:
           username: ${ACR_LOGIN_PD}
           password: ${ACR_PASSWORD_PD}
@@ -89,52 +83,34 @@ jobs:
 
   behat:
     resource_class: large
-    parallelism: 11
-    docker:
-      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
-        auth:
-          username: ${ACR_LOGIN_PD}
-          password: ${ACR_PASSWORD_PD}
-      - image: cimg/mysql:8.0
-        auth:
-          username: ppaulis
-          password: $DOCKERHUB_PASSWORD
-      - image: elasticsearch:8.6.0
-        auth:
-          username: ppaulis
-          password: $DOCKERHUB_PASSWORD
-        environment:
-          - ELASTIC_USERNAME=elastic
-          - ELASTIC_PASSWORD=str0ng_passw0rdy
-          - transport.host: localhost
-          - network.host: 127.0.0.1
-          - http.port: 9200
-          - cluster.name: es-cluster
-          - discovery.type: single-node
-          - xpack.security.enabled: false
-          - ES_JAVA_OPTS: "-Xms256m -Xmx256m"
-    working_directory: /var/www/html
+    working_directory: ~/project
+    machine:
+      docker_layer_caching: false
+      image: ubuntu-2204:current
     steps:
       - attach_workspace:
-          at: /var/www/html
+          at: ~/project
       - run:
-          name: Waiting for Services to finish Startup
-          environment:
-            DOCKERIZE_VERSION: v0.6.1
+          name: Starting docker-compose environment
           command: |
-            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-            dockerize -wait tcp://localhost:9200 -timeout 1m
-            dockerize -wait tcp://localhost:3306 -timeout 1m
+            docker login ${ACR_HOSTNAME_PD} -u ${ACR_LOGIN_PD} -p ${ACR_PASSWORD_PD}
+            export DOCKERIZE_VERSION=v0.6.1
+            docker-compose up -d --quiet-pull
+            curl -L -o dockerize.tar.gz https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+            docker-compose exec --user=circleci api-php-fpm tar -C /tmp -xzvf dockerize.tar.gz
+            docker-compose exec --user=circleci api-php-fpm /tmp/dockerize -wait tcp://baywa_ncr_db:3306 -timeout 1m
+            docker-compose exec --user=circleci api-php-fpm /tmp/dockerize -wait tcp://baywa_ncr_db:9200 -timeout 1m
+            docker-compose exec --user=circleci api-php-fpm /tmp/dockerize -wait tcp://baywa_ncr_api_nginx:8090 -timeout 1m
       - run:
-          <<: *phing
+          name: Phing
+          command: |
+            docker-compose exec --user=circleci api-php-fpm vendor/bin/phing init -propertyfile testing-conf.ini -Dauth.serverAddress=$AUTH_SERVER_ADDRESS -Dauth.tokenEndpoint=$AUTH_TOKEN_ENDPOINT -Dauth.managementApi.usersEndpoint=$AUTH_MANAGEMENT_API_USERS_ENDPOINT -Dauth.managementApi.logoutEndpoint=$AUTH_MANAGEMENT_API_LOGOUT_ENDPOINT -Dauth.managementApi.clientId=$AUTH_MANAGEMENT_API_CLIENT_ID -Dauth.managementApi.clientSecret=$AUTH_MANAGEMENT_API_CLIENT_SECRET -Dauth.jwksUrl=$AUTH_JWKS_URL
+            docker-compose exec --user=circleci api-php-fpm rm -f data/cache/module*
       - run:
           name: Behat
           command: |
-            mkdir -p /run/apache2
-            /usr/sbin/httpd -D FOREGROUND 1>> /var/log/apache2/access.log 2>> /var/log/apache2/error.log &
-            export APACHE_HOSTNAME=http://localhost
-            mkdir -p results/Behat
-            vendor/bin/behat
+            docker-compose exec --user=circleci api-php-fpm mkdir -p results/Behat
+            docker-compose exec --user=circleci api-php-fpm  vendor/bin/behat
       - store_test_results:
           path: results
       - store_artifacts:
@@ -142,7 +118,7 @@ jobs:
 
   remove-dev-dependencies:
     docker:
-      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+      - image: ${ACR_HOSTNAME_PD}/alpine-php82-build:2.1.0
         auth:
           username: ${ACR_LOGIN_PD}
           password: ${ACR_PASSWORD_PD}
@@ -157,7 +133,7 @@ jobs:
 
   deploy-production-microservice-example-api:
     docker:
-      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+      - image: ${ACR_HOSTNAME_PD}/alpine-php82-build:2.1.0
         auth:
           username: ${ACR_LOGIN_PD}
           password: ${ACR_PASSWORD_PD}
@@ -172,12 +148,12 @@ jobs:
           name: Build Microservice Example API Image
           command: |
             docker login ${ACR_HOSTNAME_PD} -u ${ACR_LOGIN_PD} -p ${ACR_PASSWORD_PD}
-            docker build . -t ${ACR_HOSTNAME_PD}/microservice-example-api:${CIRCLE_TAG} --build-arg DOCKER_IMAGES_TAG=1.11.1
+            docker build . -t ${ACR_HOSTNAME_PD}/microservice-example-api:${CIRCLE_TAG}
             docker push ${ACR_HOSTNAME_PD}/microservice-example-api:${CIRCLE_TAG}
 
   deploy-production-microservice-example-cli:
     docker:
-      - image: ${ACR_HOSTNAME_PD}/alpine-php81-apache-build:latest
+      - image: ${ACR_HOSTNAME_PD}/alpine-php82-build:2.1.0
         auth:
           username: ${ACR_LOGIN_PD}
           password: ${ACR_PASSWORD_PD}
@@ -192,7 +168,7 @@ jobs:
           name: Build Microservice Example Cronjob Image
           command: |
             docker login ${ACR_HOSTNAME_PD} -u ${ACR_LOGIN_PD} -p ${ACR_PASSWORD_PD}
-            docker build . -f Dockerfile_cli -t ${ACR_HOSTNAME_PD}/microservice-example-cli:${CIRCLE_TAG} --build-arg DOCKER_IMAGES_TAG=1.11.1
+            docker build . -f Dockerfile_cli -t ${ACR_HOSTNAME_PD}/microservice-example-cli:${CIRCLE_TAG} --build-arg DOCKER_IMAGES_TAG=2.1.0
             docker push ${ACR_HOSTNAME_PD}/microservice-example-cli:${CIRCLE_TAG}
 
 workflows:
@@ -216,6 +192,13 @@ workflows:
             - KEYCLOAK_MANAGEMENT
           requires:
             - build
+      - remove-dev-dependencies:
+          <<: *master_branch_only
+          context:
+            - ACR_CREDENTIALS
+          requires:
+            - static
+            - behat
   production:
     jobs:
       - build:

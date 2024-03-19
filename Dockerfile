@@ -1,5 +1,4 @@
-ARG DOCKER_IMAGES_TAG
-FROM crpdlusy.azurecr.io/alpine-php81-apache:${DOCKER_IMAGES_TAG}
+FROM alpine:3.19.1
 
 WORKDIR /var/www/html
 
@@ -13,6 +12,7 @@ COPY consoled consoled
 COPY build.xml build.xml
 COPY startup.sh startup.sh
 COPY clear_cache clear_cache
+COPY get_mysql_connection_string.php get_mysql_connection_string.php
 
 RUN rm -f data/cache/module-*
 RUN rm -f config/autoload/*local.php
