@@ -44,6 +44,27 @@ services:
       - NGINX_HOSTNAME=http://baywa_microservice_skeleton_api_nginx:8090
       - LISTEN_ON_ADDRESS=baywa_microservice_skeleton_api_php_fpm
 
+  elasticsearch:
+    image: elasticsearch:8.12.2
+    container_name: baywa_cde_elasticsearch
+    environment:
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=str0ng_passw0rd
+      - node.name=elasticsearch-cde
+      - cluster.name=elasticsearch-cde
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - xpack.security.http.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_tms_data:/usr/share/elasticsearch/data
+    networks:
+      - baywaregateway
+
   database:
     image: mysql:8.0
     container_name: baywa_microservice_skeleton_api_db
