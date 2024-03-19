@@ -7,3 +7,5 @@ parameters:
     excludePaths:
         - module/Application/src/Controller/IndexController.php
     checkMissingIterableValueType: false
+    bootstrapFiles:
+        - create_documentation.php
