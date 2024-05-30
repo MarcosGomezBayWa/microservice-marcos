@@ -9,6 +9,6 @@ class IsReadyController extends AbstractActionController
 {
     public function isReadyAction(): JsonModel
     {
-        return new JsonModel(['success' => 'OK']);
+        return new JsonModel(['status' => 'OK']);
     }
 }

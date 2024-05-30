@@ -9,6 +9,6 @@ class HealthcheckController extends AbstractActionController
 {
     public function healthcheckAction(): JsonModel
     {
-        return new JsonModel(['success' => 'OK']);
+        return new JsonModel(['status' => 'OK']);
     }
 }
