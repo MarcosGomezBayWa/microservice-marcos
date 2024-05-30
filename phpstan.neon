@@ -4,8 +4,8 @@ parameters:
         - module
     ignoreErrors:
         - '#Method [A-Za-z]+\\Module::onBootstrap\(\) has parameter \$e with generic interface Laminas\\EventManager\\EventInterface but does not specify its types: TTarget, TParams#'
+        - identifier: missingType.iterableValue
     excludePaths:
         - module/Application/src/Controller/IndexController.php
-    checkMissingIterableValueType: false
     bootstrapFiles:
         - create_documentation.php
