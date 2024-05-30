@@ -73,10 +73,7 @@
     "autoload-dev": {
         "psr-4": {
             "Test\\": "tests"
-        },
-        "files": [
-            "src/ApiTools/constants.php"
-        ]
+        }
     },
     "scripts": {
         "development-disable": "laminas-development-mode disable",
