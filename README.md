@@ -3,6 +3,12 @@ BayWa r.e. Microservice Skeleton
 
 # Setup
 
+You first need to create a file `.env` with the following content :
+```
+PHP_FPM_DOCKER_IMAGE=crpdlusy.azurecr.io/alpine-php82-fpm-dev:2.2.0
+```
+
+Then follow the instructions :
 1. Copy the entire repository to your project :
    1. Clone this repository
    2. `cd microservice-skeleton`
